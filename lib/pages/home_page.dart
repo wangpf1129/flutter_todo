@@ -38,6 +38,27 @@ class _HomePageState extends State<HomePage> {
             DialogBox(controller: _controller, onSave: saveNewTask));
   }
 
+  void deleteTask(int index) {
+    setState(() {
+      toDoList.removeAt(index);
+    });
+  }
+
+  void editTask(int index) {
+    _controller.text = toDoList[index][0];
+    showDialog(
+        context: context,
+        builder: (context) => DialogBox(
+            controller: _controller,
+            onSave: () {
+              setState(() {
+                toDoList[index][0] = _controller.text;
+              });
+              _controller.clear();
+              Navigator.of(context).pop();
+            }));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,7 +77,9 @@ class _HomePageState extends State<HomePage> {
             return TodoTile(
                 taskName: toDoList[index][0],
                 isCompleted: toDoList[index][1],
-                onCheckboxChanged: (value) => checkBoxChanged(value, index));
+                onCheckboxChanged: (value) => checkBoxChanged(value, index),
+                editFunction: (context) => editTask(index),
+                deleteFunction: (context) => deleteTask(index));
           },
         ),
         floatingActionButton: FloatingActionButton(
