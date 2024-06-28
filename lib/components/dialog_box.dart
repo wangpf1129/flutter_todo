@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class DialogBox extends StatelessWidget {
-  final controller;
-  VoidCallback onSave;
-  DialogBox({super.key, required this.controller, required this.onSave});
+  final TextEditingController controller;
+  final VoidCallback onSave;
+  const DialogBox({super.key, required this.controller, required this.onSave});
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
