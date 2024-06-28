@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:todo_flutter/components/dialog_box.dart';
 import 'package:todo_flutter/components/todo_tile.dart';
+import 'package:todo_flutter/data/datatbase.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -10,23 +12,33 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final _todoBox = Hive.box(name: 'todoBox');
+  ToDoDatabase db = ToDoDatabase();
   final _controller = TextEditingController();
-  List toDoList = [
-    ['Task 1', false],
-    ['Task 2', true],
-    ['Task 3', false]
-  ];
+
+  @override
+  void initState() {
+    if (_todoBox.get('TODO_LIST') == null) {
+      db.createInitData();
+      db.updateData();
+    } else {
+      db.loadData();
+    }
+    super.initState();
+  }
 
   void checkBoxChanged(bool? value, int index) {
     setState(() {
-      toDoList[index][1] = value!;
+      db.toDoList[index][1] = value!;
     });
+    db.updateData();
   }
 
   void saveNewTask() {
     setState(() {
-      toDoList.add([_controller.text, false]);
+      db.toDoList.add([_controller.text, false]);
     });
+    db.updateData();
     _controller.clear();
     Navigator.of(context).pop();
   }
@@ -40,20 +52,22 @@ class _HomePageState extends State<HomePage> {
 
   void deleteTask(int index) {
     setState(() {
-      toDoList.removeAt(index);
+      db.toDoList.removeAt(index);
     });
+    db.updateData();
   }
 
   void editTask(int index) {
-    _controller.text = toDoList[index][0];
+    _controller.text = db.toDoList[index][0];
     showDialog(
         context: context,
         builder: (context) => DialogBox(
             controller: _controller,
             onSave: () {
               setState(() {
-                toDoList[index][0] = _controller.text;
+                db.toDoList[index][0] = _controller.text;
               });
+              db.updateData();
               _controller.clear();
               Navigator.of(context).pop();
             }));
@@ -72,11 +86,11 @@ class _HomePageState extends State<HomePage> {
           elevation: 0,
         ),
         body: ListView.builder(
-          itemCount: toDoList.length,
+          itemCount: db.toDoList.length,
           itemBuilder: (context, index) {
             return TodoTile(
-                taskName: toDoList[index][0],
-                isCompleted: toDoList[index][1],
+                taskName: db.toDoList[index][0],
+                isCompleted: db.toDoList[index][1],
                 onCheckboxChanged: (value) => checkBoxChanged(value, index),
                 editFunction: (context) => editTask(index),
                 deleteFunction: (context) => deleteTask(index));
