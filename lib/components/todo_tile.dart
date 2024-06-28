@@ -33,7 +33,14 @@ class TodoTile extends StatelessWidget {
             value: isCompleted,
             onChanged: onCheckboxChanged,
           ),
-          Text(taskName),
+          Text(
+            taskName,
+            style: TextStyle(
+              decoration: isCompleted
+                  ? TextDecoration.lineThrough
+                  : TextDecoration.none,
+            ),
+          ),
         ],
       ),
     );
